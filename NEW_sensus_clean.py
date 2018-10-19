@@ -3,7 +3,7 @@
 """
 Created on Thu Oct  4 13:02:46 2018
 
-@author: sm7gc
+@author: Mehdi
 """
 
 import os
@@ -14,16 +14,8 @@ import shutil
 import gzip
 from collections import defaultdict
 
-## List of Device ID and Device Name pairs (ADD DEVICES AS NEEDED)
-#device_dict = {"0d3a7c5044a5cc33": "Pixel2-walleye",
-#               "fde44c748cd186a7":"Pixel2-taimen",
-#               "A8375B1A-9B7E-4AFB-9E59-C0FFFBA294B8":"iPhone8.1",
-#               "1a4cc41424b4d2a2":"LGE-elsa",
-#               "5B668C42-B351-471B-BE64-9D485477A0EF":"iPhone9.1",
-#               "6DD4FF11-386A-4092-B849-F8C3D1E4D6C5":"iPhone10.1"}
 
-
-data_folder = 'D:/swear-test/10_19/raw' # Define data filepath(s)
+data_folder = 'D:/swear-test/10_19/raw' # Define data filepath
 target_folder = 'D:/swear-test/10_19/clean' # Define folder to store clean files
 
 # Cuz I'm lazy
