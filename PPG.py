@@ -83,16 +83,18 @@ ex= wdf.loc['40:240']
 ex= wdf.loc['60:260']
 plt.plot(ex)
 w=0
-for d in windows(clean, 200, 20):
+for d in windows(clean, 2000, 20):
     w=w+1
-    if w==1:
+    if w==400:
+        p1=d
         ica = FastICA(n_components=2)
         S_ = ica.fit_transform(d)  # Reconstruct signals
         A_ = ica.mixing_  # Get estimated mixing matrix 
         assert np.allclose(d, np.dot(S_, A_.T) + ica.mean_)
         p=d
 
-plt.plot(d)
+plt.plot(p1)
+plt.plot(p)
 plt.plot(S_)
 plt.plot(A_)
 print(d)

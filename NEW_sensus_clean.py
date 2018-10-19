@@ -23,12 +23,12 @@ from collections import defaultdict
 #               "6DD4FF11-386A-4092-B849-F8C3D1E4D6C5":"iPhone10.1"}
 
 
-data_folder = 'D:/swear-ESME/raw' # Define data filepath(s)
-target_folder = 'C:/Users/mob3f/Documents/Python Scripts/data/ESME-clean' # Define folder to store clean files
+data_folder = 'D:/swear-test/10_19/raw' # Define data filepath(s)
+target_folder = 'D:/swear-test/10_19/clean' # Define folder to store clean files
 
 # Cuz I'm lazy
-shutil.rmtree(target_folder)
-os.makedirs(target_folder)
+#shutil.rmtree(target_folder)
+#os.makedirs(target_folder)
 
 absolute_start_time = time.time()
 
@@ -41,7 +41,7 @@ for i in range(len(filenames)):
     
     file = filenames[i]
 
-    print("File " + str(i+1) + " out of " + str(len(filenames)) + ' (' + data_folder + ')') # progress print statement
+    #print("File " + str(i+1) + " out of " + str(len(filenames)) + ' (' + data_folder + ')') # progress print statement
     
     start_time = time.time()
     
@@ -87,7 +87,7 @@ for key in complete_data.keys():
     print(key + ' (' + str(len(complete_data[key])) + ')') # progress print statement
     start_time = time.time()
     with open(os.path.join(target_folder,key),'w') as f:
-        writer = csv.DictWriter(f, fieldnames=complete_data[key][0].keys())
+        writer = csv.DictWriter(f, fieldnames=complete_data[key][0].keys(),lineterminator='\n')
         writer.writeheader()
         writer.writerows(complete_data[key])
         f.close()
