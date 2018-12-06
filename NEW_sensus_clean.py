@@ -16,8 +16,8 @@ from collections import defaultdict
 
 
 
-data_folder = 'D:/WASH/v1/Uncontrolled' # Define data filepath
-target_folder = 'D:/WASH/v1' # Define folder to store clean files
+data_folder = 'D:/WASH/Swear/raw' # Define data filepath
+target_folder = 'D:/WASH/Swear/clean' # Define folder to store clean files
 
 
 
@@ -33,61 +33,66 @@ for i in range(len(filenames)):
     file = filenames[i]
 
     print("File " + str(i+1) + " out of " + str(len(filenames)) + ' (' + data_folder + ')'+ ' (' + file + ')') # progress print statement
-    try:
-        start_time = time.time()
-        if (file.endswith(".gz")):
-            f = gzip.open(file, 'rb')
-        elif(file.endswith(".json")):
-            f = open(file)
-        file_content = f.read()
-        raw_data = json.loads(file_content)
-    
-        base = ''
-        if 'Swear' in file:
-            base = 'Smartwatch_'
-        else:
-            base = 'Sensus_'
-    
-        for line in raw_data:
-            
-    
-            if ( 'SWear' in line["$type"]):
-                data_type = line.pop("$type").split('.')[-1]
-                datum = data_type
-            else:
-                line["Sensus OS"] = line["$type"].split(',')[1]
-                line["Data Type"] = line.pop("$type").split(',')[0]
-                data_type_split = line["Data Type"].split('.')
-                data_type = data_type_split[len(data_type_split)-1]
-                if data_type[-5:] == "Datum":
-                    datum = data_type[:-5]
-                else:
-                    datum = data_type
-            if "PID" in line:
-                line.pop("PID")
-                
-                
-            file = base + datum + '.csv'
-            
-            if datum == "Activity":
-                line["Activity Mode"] = line.pop("Activity")
-            complete_data[file].append(line)
-            
-        for key in complete_data.keys():
-            if not (os.path.isfile(os.path.join(target_folder,key))):
-                w = open(os.path.join(target_folder,key),'a')
-                writer = csv.DictWriter(w, fieldnames=complete_data[key][0].keys(),lineterminator='\n')
-                writer.writeheader()
-            writer.writerows(complete_data[key])
-        complete_data.clear()
-        w.flush()
-        elapsed_time = time.time() - start_time
-        elapsed_total_time = time.time() - absolute_start_time        
-        
-        print("--- " +  time.strftime("%H:%M:%S", time.gmtime(elapsed_time)) +  " / " + time.strftime("%H:%M:%S", time.gmtime(elapsed_total_time)) + " --- " %())
-    except:
-        print("File corrupted")
+#    try:
+#            except:
+#        print("File corrupted")
+    start_time = time.time()
+    if (file.endswith(".gz")):
+        f = gzip.open(file, 'rb')
+    elif(file.endswith(".json")):
+        f = open(file)
+    file_content = f.read()
+    raw_data = json.loads(file_content)
 
+    base = ''
+    if 'Swear' in file:
+        base = 'Smartwatch_'
+    else:
+        base = 'Sensus_'
+
+    for line in raw_data:
+        
+
+        if ( 'SWear' in line["$type"]):
+            data_type = line.pop("$type").split('.')[-1]
+            datum = data_type
+        else:
+            line["Sensus OS"] = line["$type"].split(',')[1]
+            line["Data Type"] = line.pop("$type").split(',')[0]
+            data_type_split = line["Data Type"].split('.')
+            data_type = data_type_split[len(data_type_split)-1]
+            if data_type[-5:] == "Datum":
+                datum = data_type[:-5]
+            else:
+                datum = data_type
+        if "PID" in line:
+            line.pop("PID")
+            
+            
+        file = base + datum + '.csv'
+        
+        if datum == "Activity":
+            line["Activity Mode"] = line.pop("Activity")
+        complete_data[file].append(line)
+        
+    for key in complete_data.keys():
+        print (key)
+        if not (os.path.isfile(os.path.join(target_folder,key))):
+            w = open(os.path.join(target_folder,key),'a')
+            writer = csv.DictWriter(w, fieldnames=complete_data[key][0].keys(),lineterminator='\n')
+            writer.writeheader()
+        w = open(os.path.join(target_folder,key),'a')
+        writer = csv.DictWriter(w, fieldnames=complete_data[key][0].keys(),lineterminator='\n')
+        writer.writerows(complete_data[key])
+    complete_data.clear()
+    w.flush()
+    elapsed_time = time.time() - start_time
+    elapsed_total_time = time.time() - absolute_start_time        
+    
+    print("--- " +  time.strftime("%H:%M:%S", time.gmtime(elapsed_time)) +  " / " + time.strftime("%H:%M:%S", time.gmtime(elapsed_total_time)) + " --- " %())
+
+f.close()
+w.close()
 
 
 if os.path.isfile(os.path.join(target_folder,'Sensus_Script.csv')):
