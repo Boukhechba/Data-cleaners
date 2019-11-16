@@ -13,11 +13,13 @@ import json
 import pandas as pd
 import gzip
 from collections import defaultdict
+import jsonlines
+import numpy as np
 
 
 
-data_folder = 'E:/empatica-watch-shimmer-courtney/raw/swear' # Define data filepath
-target_folder = 'E:/empatica-watch-shimmer-courtney/clean/swear' # Define folder to store clean files
+data_folder = 'C:/Users/mehdi/Documents/mHealth_course/2019/projects/1/raw/trial-1/data/0000' # Define data filepath
+target_folder = 'C:/Users/mehdi/Documents/mHealth_course/2019/projects/1/clean' # Define folder to store clean files
 
 
 
@@ -39,40 +41,45 @@ for i in range(len(filenames)):
         f = gzip.open(file, 'rb')
     elif(file.endswith(".json")):
         f = open(file)
-    file_content = f.read()
-    raw_data = json.loads(file_content)
-
+#    file_content = f.read()
+#    raw_data = json.loads(file_content)
     base = ''
     if 'Swear' in file:
         base = 'Smartwatch_'
     else:
         base = 'Sensus_'
-
-    for line in raw_data:
         
-
-        if ( 'SWear' in line["$type"]):
-            data_type = line.pop("$type").split('.')[-1]
-            datum = data_type
-        else:
-            line["Sensus OS"] = line["$type"].split(',')[1]
-            line["Data Type"] = line.pop("$type").split(',')[0]
-            data_type_split = line["Data Type"].split('.')
-            data_type = data_type_split[len(data_type_split)-1]
-            if data_type[-5:] == "Datum":
-                datum = data_type[:-5]
-            else:
+    data=[]
+    lines = f.readlines()
+    for l in lines:
+        obj=str(l[:-2], "utf-8")
+        
+        try:
+            line=json.loads(obj)
+            if ( 'SWear' in line["$type"]):
+                data_type = line.pop("$type").split('.')[-1]
                 datum = data_type
-        if "PID" in line:
-            line.pop("PID")
+            else:
+                line["Sensus OS"] = line["$type"].split(',')[1]
+                line["Data Type"] = line.pop("$type").split(',')[0]
+                data_type_split = line["Data Type"].split('.')
+                data_type = data_type_split[len(data_type_split)-1]
+                if data_type[-5:] == "Datum":
+                    datum = data_type[:-5]
+                else:
+                    datum = data_type
+            if "PID" in line:
+                line.pop("PID")
+                
+                
+            file = base + datum + '.csv'
             
-            
-        file = base + datum + '.csv'
-        
-        if datum == "Activity":
-            line["Activity Mode"] = line.pop("Activity")
-        complete_data[file].append(line)
-        
+            if datum == "Activity":
+                line["Activity Mode"] = line.pop("Activity")
+            complete_data[file].append(line)
+        except:
+            print(obj)
+         
     for key in complete_data.keys():
         print (key)
         if not (os.path.isfile(os.path.join(target_folder,key))):

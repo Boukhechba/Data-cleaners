@@ -11,6 +11,7 @@ from hrvanalysis import get_time_domain_features,plot_poincare
 import numpy as np
 
 
+
 def windows(d, w, t):
     r = np.arange(len(d))
     s = r[::t]
@@ -37,7 +38,7 @@ for name, group in subjects:
 
 clean=pd.DataFrame(results)
 clean.to_csv('C:/Users/mob3f/Documents/ESME/results/Clean_Data/Smartwatch_HRV.csv')
-    
+
     
     conditions = group.groupby('condition')
     for condition,rest in conditions:
