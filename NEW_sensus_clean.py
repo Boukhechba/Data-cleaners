@@ -104,11 +104,17 @@ w.close()
 
 if os.path.isfile(os.path.join(target_folder,'Sensus_Script.csv')):
     data = pd.read_csv(os.path.join(target_folder,'Sensus_Script.csv'),encoding = "ISO-8859-1")
-    data = data.set_index(['RunId'])
+    for index, row in data.iterrows():        
+        try:
+            data["Response"][index]=json.loads(row["Response"].replace("'","\""))["$values"]
+        except:
+            pass   
+    data = data.set_index(['RunTimestamp'])
     script_types = data.groupby('ScriptName')
     for name,group in script_types:
-        data_wide = data.pivot( columns='InputId', values='Response')
-        data_long = data.drop(['InputId','Timestamp','Id','GroupId','CompletionRecords','Response'], 1)
+        data_wide=group.pivot_table(index='RunTimestamp', values='Response',columns='InputLabel',aggfunc=np.sum)
+#        data_wide = group.pivot( columns='InputLabel', values='Response')
+        data_long = group.drop(['InputId','Timestamp','Id','GroupId','CompletionRecords','Response','InputLabel','InputName'], 1)
         data_long = data_long.drop_duplicates()
         result = pd.concat([data_long, data_wide], axis=1, join='inner')
         result.to_csv(os.path.join(target_folder,'Sensus_Script_'+name+'.csv'), sep=',', encoding='utf-8',index=True)
