@@ -3,7 +3,7 @@
 """
 Created on Thu Oct  4 13:02:46 2018
 
-@author: sm7gc
+@author: Mehdi Boukhechba
 """
 
 import os
