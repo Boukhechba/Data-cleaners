@@ -21,6 +21,8 @@ import numpy as np
 data_folder = 'C:/Users/mehdi/Documents/mHealth_course/2019/projects/1/raw/trial-1/data/0000' # Define data filepath
 target_folder = 'C:/Users/mehdi/Documents/mHealth_course/2019/projects/1/clean' # Define folder to store clean files
 
+#data_folder = 'C:/Users/mehdi/Documents/vr/raw' # Define data filepath
+#target_folder = 'C:/Users/mehdi/Documents/vr/clean' # Define folder to store clean files
 
 
 absolute_start_time = time.time()
@@ -83,10 +85,10 @@ for i in range(len(filenames)):
     for key in complete_data.keys():
         print (key)
         if not (os.path.isfile(os.path.join(target_folder,key))):
-            w = open(os.path.join(target_folder,key),'a')
+            w = open(os.path.join(target_folder,key),'a',encoding='utf-8')
             writer = csv.DictWriter(w, fieldnames=complete_data[key][0].keys(),lineterminator='\n')
             writer.writeheader()
-        w = open(os.path.join(target_folder,key),'a')
+        w = open(os.path.join(target_folder,key),'a', encoding='utf-8')
         writer = csv.DictWriter(w, fieldnames=complete_data[key][0].keys(),lineterminator='\n')
         writer.writerows(complete_data[key])
     complete_data.clear()
