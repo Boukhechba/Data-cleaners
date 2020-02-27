@@ -18,8 +18,8 @@ import numpy as np
 
 
 
-data_folder = 'C:/Users/mehdi/Documents/mHealth_course/2019/projects/1/raw/trial-1/data/0000' # Define data filepath
-target_folder = 'C:/Users/mehdi/Documents/mHealth_course/2019/projects/1/clean' # Define folder to store clean files
+data_folder = 'C:/Users/mehdi/Documents/kelly_study/test/raw' # Define data filepath
+target_folder = 'C:/Users/mehdi/Documents/kelly_study/test/clean' # Define folder to store clean files
 
 #data_folder = 'C:/Users/mehdi/Documents/vr/raw' # Define data filepath
 #target_folder = 'C:/Users/mehdi/Documents/vr/clean' # Define folder to store clean files
@@ -53,9 +53,11 @@ for i in range(len(filenames)):
         
     data=[]
     lines = f.readlines()
+    i=1
     for l in lines:
-        obj=str(l[:-2], "utf-8")
-        
+        if i < len(lines)-1:
+            obj=str(l[:-2], "utf-8")
+        i=i+1
         try:
             line=json.loads(obj)
             if ( 'SWear' in line["$type"]):
