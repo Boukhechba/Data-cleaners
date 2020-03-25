@@ -45,6 +45,13 @@ for i in range(len(filenames)):
         f = open(file)
 #    file_content = f.read()
 #    raw_data = json.loads(file_content)
+    d=f.read()
+    if (str(d, "utf-8").endswith('}')):
+        d_modified=str(d, "utf-8")+"\n]"
+    elif (not str(d, "utf-8").endswith('}\n]')):
+        d_modified=str(d, "utf-8")+"\"}\n]"
+    else:
+        d_modified=str(d, "utf-8")
     base = ''
     if 'Swear' in file:
         base = 'Smartwatch_'
