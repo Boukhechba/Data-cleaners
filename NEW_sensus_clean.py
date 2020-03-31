@@ -45,13 +45,6 @@ for i in range(len(filenames)):
         f = open(file)
 #    file_content = f.read()
 #    raw_data = json.loads(file_content)
-    d=f.read()
-    if (str(d, "utf-8").endswith('}')):
-        d_modified=str(d, "utf-8")+"\n]"
-    elif (not str(d, "utf-8").endswith('}\n]')):
-        d_modified=str(d, "utf-8")+"\"}\n]"
-    else:
-        d_modified=str(d, "utf-8")
     base = ''
     if 'Swear' in file:
         base = 'Smartwatch_'
@@ -121,6 +114,7 @@ if os.path.isfile(os.path.join(target_folder,'Sensus_Script.csv')):
         except:
             pass   
     data = data.set_index(['RunTimestamp'])
+    data = data.drop_duplicates(subset=['InputId'], keep='last',inplace=True)
     script_types = data.groupby('ScriptName')
     for name,group in script_types:
         data_wide=group.pivot_table(index='RunTimestamp', values='Response',columns='InputLabel',aggfunc=np.sum)
