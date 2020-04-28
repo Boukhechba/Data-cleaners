@@ -113,8 +113,9 @@ if os.path.isfile(os.path.join(target_folder,'Sensus_Script.csv')):
             data["Response"][index]=json.loads(row["Response"].replace("'","\""))["$values"]
         except:
             pass   
+    data = data.drop_duplicates(subset=['RunTimestamp','InputId'], keep='last')
     data = data.set_index(['RunTimestamp'])
-    data = data.drop_duplicates(subset=['InputId'], keep='last',inplace=True)
+    
     script_types = data.groupby('ScriptName')
     for name,group in script_types:
         data_wide=group.pivot_table(index='RunTimestamp', values='Response',columns='InputLabel',aggfunc=np.sum)
@@ -122,5 +123,6 @@ if os.path.isfile(os.path.join(target_folder,'Sensus_Script.csv')):
         data_long = group.drop(['InputId','Timestamp','Id','GroupId','CompletionRecords','Response','InputLabel','InputName'], 1)
         data_long = data_long.drop_duplicates()
         result = pd.concat([data_long, data_wide], axis=1, join='inner')
+#        result = result.drop_duplicates(subset=['RunId'], keep='last')
         result.to_csv(os.path.join(target_folder,'Sensus_Script_'+name+'.csv'), sep=',', encoding='utf-8',index=True)
     
