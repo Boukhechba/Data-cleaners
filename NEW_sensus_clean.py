@@ -13,13 +13,12 @@ import json
 import pandas as pd
 import gzip
 from collections import defaultdict
-import jsonlines
 import numpy as np
 
 
 
-data_folder = 'C:/Users/mehdi/Documents/kelly_study/test/raw' # Define data filepath
-target_folder = 'C:/Users/mehdi/Documents/kelly_study/test/clean' # Define folder to store clean files
+data_folder = 'C:/Users/mob3f/Google Drive/Projects/ESME_2/Data' # Define data filepath
+target_folder = 'C:/Users/mob3f/Google Drive/Projects/ESME_2/Data' # Define folder to store clean files
 
 #data_folder = 'C:/Users/mehdi/Documents/vr/raw' # Define data filepath
 #target_folder = 'C:/Users/mehdi/Documents/vr/clean' # Define folder to store clean files
