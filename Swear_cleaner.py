@@ -20,20 +20,20 @@ import json
 import pandas as pd
 import gzip
 from collections import defaultdict
-import jsonlines
 import numpy as np
+import traceback
 
 
 
-data_folder = 'C:/Users/mehdi/Documents/My_projects/mhealth_class/sleep/raw' # Define data filepath
-target_folder = 'C:/Users/mehdi/Documents/My_projects/mhealth_class/sleep/clean' # Define folder to store clean files
+data_folder = 'C:/Users/mob3f/Google Drive/Projects/Fluisense/2021-01-23/Unknown/' # Define data filepath
+target_folder = 'C:/Users/mob3f/Google Drive/Projects/Fluisense/2021-01-23/Unknown' # Define folder to store clean files
 
 
 absolute_start_time = time.time()
 
 complete_data = defaultdict(list)
 
-filenames = [os.path.join(dp, f) for dp, dn, filenames in os.walk(data_folder) for f in filenames if f.endswith('.json')]
+filenames = [os.path.join(dp, f) for dp, dn, filenames in os.walk(data_folder) for f in filenames if f.endswith('.gz')]
 
 
 for i in range(len(filenames)):
@@ -57,52 +57,51 @@ for i in range(len(filenames)):
         
     data=[]
     lines = f.readlines()
-    print (len(lines))
     i=1
-    for l in lines:
-        if i < len(lines)-1:
-            obj=l[:-2]
-        i=i+1
-        try:
-            line=json.loads(obj)
-            if ( 'Swear' in file):
+    print(os.path.getsize(file))
+    if os.path.getsize(file) > 0:
+        for l in lines:
+            if i < len(lines)-1:
+                obj=l[:-2]
+            i=i+1
+            try:
+                line=json.loads(obj)
+
                 data_type = line.pop("TP")
                 datum = data_type
-                line["ParticipantId"] = file.split('_')[3]
-                line["FileCreationTime"] = file.split('_')[5]
-                line["DeviceId"] = file.split('_')[4]
-            else:
-                line["Sensus OS"] = line["$type"].split(',')[1]
-                line["Data Type"] = line.pop("$type").split(',')[0]
-                data_type_split = line["Data Type"].split('.')
-                data_type = data_type_split[len(data_type_split)-1]
-                if data_type[-5:] == "Datum":
-                    datum = data_type[:-5]
-                else:
-                    datum = data_type
-            if "PID" in line:
-                line.pop("PID")
+                line["ParticipantId"] = file.split('_')[2]
+                line["FileCreationTime"] = file.split('_')[4]
+                line["DeviceId"] = file.split('_')[3]
+
+                if "PID" in line:
+                    line.pop("PID")
+                    
+                    
+                filename_out = base + datum + '.csv'
+                
+                if datum == "Activity":
+                    line["Activity Mode"] = line.pop("Activity")
+                complete_data[filename_out].append(line)
+                
+            except Exception as e:
+                print(e)
+#                traceback.print_exc()
+                print(obj)
                 
                 
-            filename_out = base + datum + '.csv'
             
-            if datum == "Activity":
-                line["Activity Mode"] = line.pop("Activity")
-            complete_data[filename_out].append(line)
-        except:
-            print(obj)
          
-    for key in complete_data.keys():
-        print (key)
-        if not (os.path.isfile(os.path.join(target_folder,key))):
-            w = open(os.path.join(target_folder,key),'a',encoding='utf-8')
+        for key in complete_data.keys():
+            print (key)
+            if not (os.path.isfile(os.path.join(target_folder,key))):
+                w = open(os.path.join(target_folder,key),'a',encoding='utf-8')
+                writer = csv.DictWriter(w, fieldnames=complete_data[key][0].keys(),lineterminator='\n')
+                writer.writeheader()
+            w = open(os.path.join(target_folder,key),'a', encoding='utf-8')
             writer = csv.DictWriter(w, fieldnames=complete_data[key][0].keys(),lineterminator='\n')
-            writer.writeheader()
-        w = open(os.path.join(target_folder,key),'a', encoding='utf-8')
-        writer = csv.DictWriter(w, fieldnames=complete_data[key][0].keys(),lineterminator='\n')
-        writer.writerows(complete_data[key])
-    complete_data.clear()
-    w.flush()
+            writer.writerows(complete_data[key])
+        complete_data.clear()
+        w.flush()
     elapsed_time = time.time() - start_time
     elapsed_total_time = time.time() - absolute_start_time        
         
