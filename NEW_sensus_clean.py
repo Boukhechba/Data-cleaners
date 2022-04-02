@@ -17,8 +17,8 @@ import numpy as np
 
 
 
-data_folder = 'C:/Users/mob3f/Google Drive/Projects/ESME_2/Data' # Define data filepath
-target_folder = 'C:/Users/mob3f/Google Drive/Projects/ESME_2/Data' # Define folder to store clean files
+data_folder = 'C:/Users/mehdi/Documents/Python_scripts/sensus/data/raw/TASSEL' # Define data filepath
+target_folder = 'C:/Users/mehdi/Documents/Python_scripts/sensus/data//raw/TASSEL' # Define folder to store clean files
 
 #data_folder = 'C:/Users/mehdi/Documents/vr/raw' # Define data filepath
 #target_folder = 'C:/Users/mehdi/Documents/vr/clean' # Define folder to store clean files
@@ -116,12 +116,16 @@ if os.path.isfile(os.path.join(target_folder,'Sensus_Script.csv')):
     data = data.set_index(['RunTimestamp'])
     
     script_types = data.groupby('ScriptName')
+    script_types["Session 1 - Long"]
     for name,group in script_types:
+        print(name)
+        print (group)
         data_wide=group.pivot_table(index='RunTimestamp', values='Response',columns='InputLabel',aggfunc=np.sum)
 #        data_wide = group.pivot( columns='InputLabel', values='Response')
         data_long = group.drop(['InputId','Timestamp','Id','GroupId','CompletionRecords','Response','InputLabel','InputName'], 1)
         data_long = data_long.drop_duplicates()
         result = pd.concat([data_long, data_wide], axis=1, join='inner')
 #        result = result.drop_duplicates(subset=['RunId'], keep='last')
+        name=(name.replace("?","")).replace(" ", "_")
         result.to_csv(os.path.join(target_folder,'Sensus_Script_'+name+'.csv'), sep=',', encoding='utf-8',index=True)
     
