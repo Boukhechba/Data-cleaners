@@ -17,11 +17,9 @@ import numpy as np
 
 
 
-data_folder = 'C:/Users/mehdi/Documents/Python_scripts/sensus/data/raw/TASSEL' # Define data filepath
-target_folder = 'C:/Users/mehdi/Documents/Python_scripts/sensus/data//raw/TASSEL' # Define folder to store clean files
+data_folder = 'C:/Users/mehdi/Documents/Python_scripts/sensus/data/raw/' # Define data filepath
+target_folder = 'C:/Users/mehdi/Documents/Python_scripts/sensus/data/clean/' # Define folder to store clean files
 
-#data_folder = 'C:/Users/mehdi/Documents/vr/raw' # Define data filepath
-#target_folder = 'C:/Users/mehdi/Documents/vr/clean' # Define folder to store clean files
 
 
 absolute_start_time = time.time()
@@ -42,46 +40,39 @@ for i in range(len(filenames)):
         f = gzip.open(file, 'rb')
     elif(file.endswith(".json")):
         f = open(file)
-#    file_content = f.read()
-#    raw_data = json.loads(file_content)
-    base = ''
-    if 'Swear' in file:
-        base = 'Smartwatch_'
-    else:
-        base = 'Sensus_'
-        
+
+    base = 'Sensus_'        
     data=[]
     lines = f.readlines()
-    i=1
+    j=1
     for l in lines:
-        if i < len(lines)-1:
-            obj=str(l[:-2], "utf-8")
-        i=i+1
+        obj=l
+        if j < len(lines)-1:
+            if ("}"in str(l[-2:])):
+                obj=str(l[:-1], "utf-8")
+            else:
+                obj=str(l[:-2], "utf-8")
+        j=j+1
         try:
             line=json.loads(obj)
-            if ( 'SWear' in line["$type"]):
-                data_type = line.pop("$type").split('.')[-1]
-                datum = data_type
+            line["Sensus OS"] = line["$type"].split(',')[1]
+            line["Data Type"] = line.pop("$type").split(',')[0]
+            data_type_split = line["Data Type"].split('.')
+            data_type = data_type_split[len(data_type_split)-1]
+            if data_type[-5:] == "Datum":
+                datum = data_type[:-5]
             else:
-                line["Sensus OS"] = line["$type"].split(',')[1]
-                line["Data Type"] = line.pop("$type").split(',')[0]
-                data_type_split = line["Data Type"].split('.')
-                data_type = data_type_split[len(data_type_split)-1]
-                if data_type[-5:] == "Datum":
-                    datum = data_type[:-5]
-                else:
-                    datum = data_type
+                datum = data_type
             if "PID" in line:
                 line.pop("PID")
-                
-                
+                         
             file = base + datum + '.csv'
             
             if datum == "Activity":
                 line["Activity Mode"] = line.pop("Activity")
             complete_data[file].append(line)
         except:
-            print(obj)
+            pass
          
     for key in complete_data.keys():
         print (key)
@@ -107,25 +98,33 @@ w.close()
 
 if os.path.isfile(os.path.join(target_folder,'Sensus_Script.csv')):
     data = pd.read_csv(os.path.join(target_folder,'Sensus_Script.csv'),encoding = "ISO-8859-1")
-    for index, row in data.iterrows():        
-        try:
-            data["Response"][index]=json.loads(row["Response"].replace("'","\""))["$values"]
-        except:
-            pass   
+    print("--- Processing finished. Now cleaning the Script datum file. This may take a while ---")
+    data["Response"] = data['Response'].str.replace("'","\"")
+    for index, row in data.iterrows():
+        if ("$values" in str(row["Response"])):
+            data["Response"][index]=json.loads(row["Response"])["$values"]
+#        try:
+#            data["Response"][index]=json.loads(row["Response"])["$values"]
+#        except:
+#            print (row)
+#            pass   
+#    ["$values"]
     data = data.drop_duplicates(subset=['RunTimestamp','InputId'], keep='last')
     data = data.set_index(['RunTimestamp'])
     
     script_types = data.groupby('ScriptName')
-    script_types["Session 1 - Long"]
     for name,group in script_types:
         print(name)
-        print (group)
-        data_wide=group.pivot_table(index='RunTimestamp', values='Response',columns='InputLabel',aggfunc=np.sum)
+#        print (group)
+        data_wide=group.pivot_table(index=['RunTimestamp',"DeviceId","ScriptName","ParticipantId","BuildId","LocalOffsetFromUTC","ManualRun"], values='Response',columns='InputLabel',aggfunc=np.sum)
 #        data_wide = group.pivot( columns='InputLabel', values='Response')
-        data_long = group.drop(['InputId','Timestamp','Id','GroupId','CompletionRecords','Response','InputLabel','InputName'], 1)
-        data_long = data_long.drop_duplicates()
-        result = pd.concat([data_long, data_wide], axis=1, join='inner')
+#        data_long = group.drop(['InputId','Timestamp','Id','GroupId','CompletionRecords','Response','InputLabel','InputName'], 1)
+#        data_long = data_long.drop_duplicates()
+#
+#        result = pd.concat([data_long, data_wide], axis=1, join='inner')
 #        result = result.drop_duplicates(subset=['RunId'], keep='last')
         name=(name.replace("?","")).replace(" ", "_")
-        result.to_csv(os.path.join(target_folder,'Sensus_Script_'+name+'.csv'), sep=',', encoding='utf-8',index=True)
+        data_wide.to_csv(os.path.join(target_folder,'Sensus_Script_'+name+'.csv'), sep=',', encoding='utf-8',index=True)
+    print("--- Processing finished. Now cleaning the Script datum file ---")
+        
     
