@@ -102,13 +102,9 @@ if os.path.isfile(os.path.join(target_folder,'Sensus_Script.csv')):
     data["Response"] = data['Response'].str.replace("'","\"")
     for index, row in data.iterrows():
         if ("$values" in str(row["Response"])):
-            data["Response"][index]=json.loads(row["Response"])["$values"]
-#        try:
 #            data["Response"][index]=json.loads(row["Response"])["$values"]
-#        except:
-#            print (row)
-#            pass   
-#    ["$values"]
+            data["Response"][index]=row["Response"].split("\"$values\": ")[1]
+
     data = data.drop_duplicates(subset=['RunTimestamp','InputId'], keep='last')
     data = data.set_index(['RunTimestamp'])
     
